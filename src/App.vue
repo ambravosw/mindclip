@@ -1,60 +1,52 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-content>
-      <HelloWorld/>
-    </v-content>
+    <template v-if="getAuthenticated">
+      <v-content>
+        <router-view :key="$route.path"></router-view>
+        <v-btn @click="exit()">exit</v-btn>
+      </v-content>
+    </template>
+    <template v-else>
+      <!-- NOT AUTEHNTICATED -->
+      <router-view></router-view>
+    </template>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import { mapGetters, mapActions } from "vuex";
 
 export default {
-  name: 'App',
+  name: "App",
 
-  components: {
-    HelloWorld,
+  components: {},
+  async created() {
+    // console.log("created")
+    if (this.getAuthenticated) {
+      (async () => {
+        // await this.initApp(); // es necesario ??
+        // console.log("autenticated")
+      })();
+    } else {
+      // This line returns error "Navigation Duplicated"
+      // catching the error, it is removed
+      this.$router.push({ name: "Login" }).catch(() => {});
+      /* eslint-disable no-console */
+      console.log("NO autenticated");
+      /* eslint-enable no-console */
+    }
   },
-
   data: () => ({
     //
   }),
+  computed: {
+    ...mapGetters("app", ["getAuthenticated"])
+  },
+  methods: {
+    ...mapActions("app", ["initApp", "logout"]),
+    exit() {
+      this.logout();
+    }
+  }
 };
 </script>
